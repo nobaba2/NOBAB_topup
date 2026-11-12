@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070b13">
+<title>EANOBAB TOPUP | Official eFootball Store</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700;800&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070b13;--panel:#10192c;--line:rgba(0,210,255,.22);--cyan:#00d2ff;--gold:#ffcc00;--muted:#8ea1c0;--pink:#e2136e;--orange:#f7941d}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Hind Siliguri',sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;background:radial-gradient(circle at 10% 5%,#09214b 0,transparent 38%),radial-gradient(circle at 90% 90%,#062c3b 0,transparent 38%),#070b13;color:#fff}
+.notice{text-align:center;background:#b91c1c;padding:8px 12px;font-weight:700;font-size:14px}
+header{position:sticky;top:0;z-index:10;background:#0b1220eF;backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:12px;display:flex;justify-content:center}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:white}.brand img{width:45px;height:45px;object-fit:contain}.brand strong{font:700 34px Teko,sans-serif;letter-spacing:1px}.brand span{color:var(--gold)}
+main{width:min(100% - 26px,600px);margin:20px auto 40px}
+.page{display:none;animation:enter .28s ease}.page.active{display:block}@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.banner{aspect-ratio:16/9;border:1px solid var(--line);border-radius:15px;overflow:hidden;margin-bottom:24px;background:#10192c}.banner img{width:100%;height:100%;object-fit:cover;display:block}
+.heading{font-size:20px;font-weight:800;margin:23px 0 12px;border-left:4px solid var(--cyan);padding-left:10px}.heading.pop{color:var(--gold);border-color:var(--gold)}.heading.special{color:#c084fc;border-color:#a855f7}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.pkg{position:relative;background:#10192cdd;border:1px solid var(--line);border-radius:13px;overflow:hidden;text-align:center;transition:.2s}.pkg:active{transform:scale(.97)}.pkg-top{min-height:90px;background:linear-gradient(#17294b,#0d172e);display:grid;place-content:center;gap:5px;padding:12px 5px}.coin{font-size:28px}.pkg-name{font-weight:800;font-size:14px}.pkg-bottom{padding:10px 7px;display:grid;gap:8px}.price{color:var(--gold);font-size:18px;font-weight:800}.tag{position:absolute;right:4px;top:4px;background:#dc2626;border-radius:4px;padding:1px 5px;font-size:10px;font-weight:800}.tag.popular{background:#f59e0b;color:#111}.tag.special{background:#9333ea}
+button,.btn{border:0;border-radius:8px;padding:10px 13px;font-weight:800;cursor:pointer;color:white;background:linear-gradient(90deg,#0752c9,#00bde9);transition:transform .15s,filter .15s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:7px}button:active,.btn:active{transform:scale(.96)}button:hover,.btn:hover{filter:brightness(1.12)}.back{background:#142244;border:1px solid var(--line);margin-bottom:15px}
+.card{background:#10192cdd;border:1px solid var(--line);border-radius:15px;padding:18px;margin-bottom:16px}.selected{display:flex;justify-content:space-between;gap:10px;background:#00d2ff12;border:1px solid var(--cyan);padding:12px;border-radius:10px;margin-bottom:15px}.muted{color:var(--muted);font-size:13px}.field{margin:13px 0}.field label{display:block;font-size:14px;font-weight:700;margin-bottom:6px}.field input{width:100%;background:#060b14;border:1px solid var(--line);border-radius:8px;padding:12px;color:white;font-size:16px;outline:none}.field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px #00d2ff18}
+.paygrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.paychoice{background:#0d1628;border:2px solid var(--line);border-radius:12px;padding:16px 8px;display:grid;place-items:center;gap:8px;cursor:pointer}.paychoice img{height:38px;max-width:90%;object-fit:contain}.paychoice b{color:var(--cyan)}.paychoice.bk b{color:var(--pink)}.paychoice.ng b{color:var(--orange)}
+.gateway{background:#fff;color:#333;border-radius:15px;overflow:hidden}.gateway-head{padding:14px 18px;color:#fff;display:flex;justify-content:space-between;font-weight:800}.bkhead{background:var(--pink)}.nghead{background:var(--orange)}.gateway-body{padding:18px}.number{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px;background:#fdf2f7;border:1px dashed var(--pink);border-radius:9px;margin:9px 0 14px;color:var(--pink);font-weight:800}.number button{background:var(--pink);padding:7px 11px}.ngnumber{background:#fef7ed;border-color:var(--orange);color:#b86b00}.ngnumber button{background:var(--orange);color:#111}.instructions{padding:11px;background:#f6f6f6;border-left:4px solid var(--pink);font-size:13px;margin-bottom:14px}.instructions.ng{border-color:var(--orange)}.gateway .field input{background:#fff;color:#222;border-color:#ddd}.gateway .field label{color:#333}.submit{width:100%;background:var(--pink);margin-top:8px}.submit.ng{background:var(--orange);color:#111}
+.table{width:100%;border-collapse:collapse;margin:12px 0 18px}.table td{padding:9px 0;border-bottom:1px solid #ffffff14;font-size:14px;overflow-wrap:anywhere}.table td:first-child{color:var(--muted);width:40%}.table td:last-child{text-align:right;font-weight:700}.confirm{width:100%;background:linear-gradient(90deg,#10b981,#059669);padding:14px;font-size:17px}.pending{text-align:center;padding:25px 15px}.orderid{display:inline-block;color:var(--cyan);background:#09101c;border:1px solid var(--line);padding:7px 13px;border-radius:7px;margin:12px 0 18px;font-family:monospace}.wa{width:100%;background:linear-gradient(90deg,#25d366,#128c7e);padding:14px;font-size:16px}.social{text-align:center;margin:30px 0}.social p{color:var(--muted);margin-bottom:13px}.social a{display:inline-flex;width:64px;height:64px;margin:5px;border:1px solid var(--line);border-radius:50%;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-decoration:none;font-size:12px;font-weight:700}.trusted{background:#0b1220;border:1px solid var(--line);border-radius:15px;padding:18px;margin-top:25px}.trusted h3{text-align:center;color:var(--cyan);margin-bottom:14px}.trustgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}.trustgrid div{background:#10192c;padding:10px 5px;border-radius:9px;font-size:12px}.trustgrid strong{display:block;font-size:14px}.about{color:#94a3b8;font-size:13px;line-height:1.7;text-align:justify;margin-top:15px}footer{text-align:center;color:var(--muted);border-top:1px solid var(--line);padding:20px;font-size:13px}
+@media(max-width:380px){.grid{gap:7px}.pkg-name{font-size:12px}.price{font-size:16px}.pkg-bottom{padding:8px 5px}.heading{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="notice">⚠️ কয়েন টপ-আপ শুধুমাত্র <b>Android</b> ডিভাইসের জন্য (iOS সাময়িক বন্ধ)</div>
+<header><a class="brand" href="#"><img src="https://i.ibb.co.com/Rk4ZJmfV/file-00000000b8648208b9726a0227c610d9.png" alt="EANOBAB"><strong>EANOBAB <span>TOPUP</span></strong></a></header>
+<main>
+<section id="home" class="page active">
+ <div class="banner"><img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1280&q=80" alt="Gaming banner"></div>
+ <h2 class="heading pop">🔥 পপুলার অফার</h2><div class="grid" id="popular"></div>
+ <h2 class="heading special">⭐ প্লেয়ার প্যাক</h2><div class="grid" id="special"></div>
+ <h2 class="heading">🪙 সাধারণ কয়েন প্যাকেজ</h2><div class="grid" id="regular"></div>
+ <div class="social"><p>আমাদের অফিসিয়াল সোশ্যাল মিডিয়া</p>
+  <a href="https://www.facebook.com/share/1BUzSPineM/" target="_blank">f<br>ফেসবুক</a>
+  <a href="https://youtube.com/@eanobab" target="_blank">▶<br>ইউটিউব</a>
+  <a href="https://www.tiktok.com/@eanobab" target="_blank">♪<br>টিকটক</a>
+  <a href="https://t.me/EaNOBAB" target="_blank">➤<br>টেলিগ্রাম</a>
+ </div>
+ <div class="trusted"><h3>🛡️ কেন EANOBAB TOPUP?</h3><div class="trustgrid"><div>⚡<strong>দ্রুত ডেলিভারি</strong>অর্ডার অনুযায়ী</div><div>🔒<strong>নিরাপত্তা</strong>সতর্ক লেনদেন</div><div>💬<strong>সাপোর্ট</strong>WhatsApp সহায়তা</div></div><p class="about"><b>eanobab_topup</b> বাংলাদেশের eFootball গেমারদের জন্য একটি কয়েন টপ-আপ সেবা। অর্ডার ও পেমেন্টের তথ্য যাচাই করে ডেলিভারি সম্পন্ন করা হবে। নিরাপত্তার জন্য ওয়েবসাইটে কখনো আপনার গেম অ্যাকাউন্টের পাসওয়ার্ড, ইমেইল ব্যাকআপ কোড বা OTP দেবেন না।</p></div>
+</section>
+<section id="info" class="page">
+ <button class="back" onclick="go('home')">← প্যাকেজ পরিবর্তন</button>
+ <div class="selected"><div><span class="muted">নির্বাচিত প্যাকেজ</span><div id="chosenName"><b>-</b></div></div><div style="text-align:right"><span class="muted">মোট মূল্য</span><div id="chosenPrice" style="color:var(--gold);font-weight:800">-</div></div></div>
+ <div class="card"><h3 style="color:var(--cyan)">১. কাস্টমার তথ্য</h3>
+  <div class="field"><label for="custName">আপনার নাম</label><input id="custName" autocomplete="name" placeholder="আপনার নাম লিখুন"></div>
+  <div class="field"><label for="custWhatsApp">হোয়াটসঅ্যাপ নম্বর</label><input id="custWhatsApp" inputmode="tel" placeholder="01XXXXXXXXX"></div>
+  <div class="field"><label for="custAccountId">eFootball User ID / প্রয়োজনীয় Player ID</label><input id="custAccountId" placeholder="আপনার গেমের User ID লিখুন"></div>
+  <p class="muted">অর্ডার সম্পন্ন করতে কোনো পাসওয়ার্ড, OTP, ইমেইল লগইন বা ব্যাকআপ কোড প্রয়োজন নেই। কাউকে এসব তথ্য দেবেন না।</p>
+  <h3 style="color:var(--cyan);margin:20px 0 8px">২. পেমেন্ট মেথড নির্বাচন করুন</h3>
+  <div class="paygrid">
+   <button class="paychoice bk" onclick="openGateway('bkash')"><img src="https://i.ibb.co/H302vV2/1701670291b-Kash-App-Logo-PNG.png" alt="bKash"><b>বিকাশ (bKash)</b></button>
+   <button class="paychoice ng" onclick="openGateway('nagad')"><img src="https://i.ibb.co.com/LdShCgSP/images-10.jpg" alt="Nagad"><b>নগদ (Nagad)</b></button>
+  </div>
+ </div>
+</section>
+<section id="bkash" class="page"><button class="back" onclick="go('info')">← ফিরে যান</button><div class="gateway"><div class="gateway-head bkhead"><span>bKash Send Money</span><span id="bAmount">৳ 0</span></div><div class="gateway-body"><b>বিকাশ পার্সোনাল নম্বর</b><div class="number"><span>01820729663</span><button onclick="copyNum('01820729663',this)">কপি</button></div><div class="instructions">১. বিকাশ অ্যাপে <b>Send Money</b> নির্বাচন করুন।<br>২. নির্ধারিত টাকা পাঠিয়ে TrxID সংগ্রহ করুন।</div><form onsubmit="submitPayment(event,'bkash')"><div class="field"><label>বিকাশ সেন্ডার নম্বর</label><input id="bSender" inputmode="tel" required placeholder="01XXXXXXXXX"></div><div class="field"><label>ট্রানজেকশন আইডি (TrxID)</label><input id="bTrx" required placeholder="TrxID লিখুন"></div><button class="submit" type="submit">পেমেন্ট তথ্য দিন ✓</button></form></div></div></section>
+<section id="nagad" class="page"><button class="back" onclick="go('info')">← ফিরে যান</button><div class="gateway"><div class="gateway-head nghead"><span>Nagad Send Money</span><span id="nAmount">৳ 0</span></div><div class="gateway-body"><b>নগদ পার্সোনাল নম্বর</b><div class="number ngnumber"><span>01820729663</span><button onclick="copyNum('01820729663',this)">কপি</button></div><div class="instructions ng">১. নগদ অ্যাপে <b>Send Money</b> নির্বাচন করুন।<br>২. নির্ধারিত টাকা পাঠিয়ে TrxID সংগ্রহ করুন।</div><form onsubmit="submitPayment(event,'nagad')"><div class="field"><label>নগদ সেন্ডার নম্বর</label><input id="nSender" inputmode="tel" required placeholder="01XXXXXXXXX"></div><div class="field"><label>ট্রানজেকশন আইডি (TrxID)</label><input id="nTrx" required placeholder="TrxID লিখুন"></div><button class="submit ng" type="submit">পেমেন্ট তথ্য দিন ✓</button></form></div></div></section>
+<section id="review" class="page"><div class="card"><h3 style="color:var(--gold)">অর্ডার রিভিউ ও নিশ্চিতকরণ</h3><table class="table" id="reviewTable"></table><button class="confirm" onclick="finalizeOrder()">অর্ডার কনফার্ম করুন 🚀</button></div></section>
+<section id="pending" class="page"><div class="card pending"><div style="font-size:48px">⏳</div><h2 style="color:var(--gold)">অর্ডারটি জমা দেওয়ার জন্য প্রস্তুত</h2><div class="orderid" id="orderId"></div><p class="muted" style="margin-bottom:17px">নিচের বাটনে চাপ দিয়ে অর্ডারের তথ্য WhatsApp-এ পাঠান। WhatsApp-এ মেসেজ পাঠানো না পর্যন্ত অর্ডারটি অ্যাডমিনের কাছে পৌঁছাবে না।</p><a class="wa" id="waLink" target="_blank" rel="noopener">WhatsApp-এ অর্ডার পাঠান</a></div></section>
+</main>
+<footer>© 2026 eanobab_topup. সর্বস্বত্ব সংরক্ষিত।</footer>
+<script>
+'use strict';
+const ADMIN_WHATSAPP='01616210203';
+const packages=[
+{id:'p1',name:'300 Coins',price:260,category:'popular',tag:'HOT'},
+{id:'p2',name:'1,050 Coins',price:850,category:'popular',tag:'BEST OFFER'},
+{id:'p3',name:'Luis Suarez Pack',price:1150,category:'special',tag:'SPECIAL'},
+{id:'p4',name:'Epic Ambassador Pack',price:1450,category:'special',tag:'LIMITED'},
+{id:'p5',name:'130 Coins',price:120,category:'regular'},
+{id:'p6',name:'520 Coins',price:440,category:'regular'},
+{id:'p7',name:'2,130 Coins',price:1650,category:'regular'},
+{id:'p8',name:'3,250 Coins',price:2450,category:'regular'}
+];
+let order={};
+function renderPackages(){for(const cat of ['popular','special','regular']){document.getElementById(cat).innerHTML=packages.filter(p=>p.category===cat).map(p=>`<article class="pkg">${p.tag?`<span class="tag ${cat}">${p.tag}</span>`:''}<div class="pkg-top"><div class="coin">${cat==='special'?'⭐':'🪙'}</div><div class="pkg-name">${p.name}</div></div><div class="pkg-bottom"><div class="price">৳ ${p.price}</div><button onclick="startOrder('${p.id}')">কিনুন</button></div></article>`).join('')}}
+function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function startOrder(id){const p=packages.find(x=>x.id===id);order={pkgName:p.name,pkgPrice:p.price};document.getElementById('chosenName').textContent=p.name;document.getElementById('chosenPrice').textContent='৳ '+p.price;document.getElementById('bAmount').textContent=document.getElementById('nAmount').textContent='৳ '+p.price;go('info')}
+function openGateway(method){const name=document.getElementById('custName').value.trim(),wa=document.getElementById('custWhatsApp').value.trim(),account=document.getElementById('custAccountId').value.trim();if(!name||!wa||!account){alert('নাম, WhatsApp নম্বর ও গেম User ID পূরণ করুন।');return}if(!/^01[3-9]\d{8}$/.test(wa.replace(/[+\s-]/g,''))){alert('সঠিক বাংলাদেশি মোবাইল নম্বর দিন।');return}Object.assign(order,{customerName:name,whatsapp:wa,accountId:account,paymentMethod:method});go(method)}
+async function copyNum(num,btn){try{await navigator.clipboard.writeText(num);const old=btn.textContent;btn.textContent='কপি হয়েছে ✓';setTimeout(()=>btn.textContent=old,1600)}catch(e){prompt('নম্বরটি কপি করুন:',num)}}
+function submitPayment(e,method){e.preventDefault();const prefix=method==='bkash'?'b':'n';const sender=document.getElementById(prefix+'Sender').value.trim(),trx=document.getElementById(prefix+'Trx').value.trim();if(!sender||!trx)return;Object.assign(order,{senderNumber:sender,trxId:trx});const rows=[['প্যাকেজ',order.pkgName],['মোট মূল্য','৳ '+order.pkgPrice],['কাস্টমার নাম',order.customerName],['WhatsApp',order.whatsapp],['গেম User ID',order.accountId],['পেমেন্ট মেথড',method.toUpperCase()],['সেন্ডার নম্বর',sender],['TrxID',trx]];document.getElementById('reviewTable').innerHTML=rows.map(([a,b])=>`<tr><td>${escapeHTML(a)}</td><td>${escapeHTML(b)}</td></tr>`).join('');go('review')}
+function escapeHTML(v){return String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function finalizeOrder(){order.orderId='EB-'+Math.floor(100000+Math.random()*900000);order.timestamp=new Date().toISOString();document.getElementById('orderId').textContent=order.orderId;const msg=`*নতুন eFootball Top-up Order (${order.orderId})*\\n🪙 প্যাকেজ: ${order.pkgName}\\n💰 মূল্য: ৳ ${order.pkgPrice}\\n👤 নাম: ${order.customerName}\\n📱 WhatsApp: ${order.whatsapp}\\n🎮 User ID: ${order.accountId}\\n💳 মাধ্যম: ${order.paymentMethod.toUpperCase()}\\n📲 প্রেরক নম্বর: ${order.senderNumber}\\n🧾 TrxID: ${order.trxId}\\n\\nঅনুগ্রহ করে পেমেন্ট যাচাই করুন।`;document.getElementById('waLink').href='https://wa.me/88'+ADMIN_WHATSAPP+'?text='+encodeURIComponent(msg);go('pending')}
+renderPackages();
+</script>
+</body>
+</html>
